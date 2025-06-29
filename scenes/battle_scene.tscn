@@ -1,0 +1,27 @@
+[gd_scene load_steps=2 format=3 uid="uid://7ke01p4fjlou"]
+
+[ext_resource type="Theme" uid="uid://1p6pc7i311uu" path="res://battle_theme.tres" id="1_idkgt"]
+
+[node name="BattleScene" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Panel" type="Panel" parent="."]
+custom_minimum_size = Vector2(1152, 648)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1112.0
+offset_bottom = 608.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_idkgt")
+
+[node name="Label" type="Label" parent="Panel"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+text = "敵"
