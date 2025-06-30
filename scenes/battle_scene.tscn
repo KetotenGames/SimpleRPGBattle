@@ -25,13 +25,24 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_idkgt")
 
-[node name="LabelTeki" type="Label" parent="Panel"]
+[node name="CenterContainer" type="CenterContainer" parent="Panel"]
 layout_mode = 0
-offset_left = 465.0
-offset_top = 105.0
-offset_right = 650.0
-offset_bottom = 189.0
+offset_left = 550.0
+offset_right = 590.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/CenterContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="LabelEnemyHP" type="Label" parent="Panel/CenterContainer/VBoxContainer"]
+layout_mode = 2
+horizontal_alignment = 1
+
+[node name="LabelEnemy" type="Label" parent="Panel/CenterContainer/VBoxContainer"]
+layout_mode = 2
 text = "敵"
+horizontal_alignment = 1
 
 [node name="StatusPanel" type="Panel" parent="Panel"]
 custom_minimum_size = Vector2(100, 100)
@@ -135,7 +146,6 @@ theme_override_constants/margin_bottom = 5
 
 [node name="CommandLogLabel" type="Label" parent="Panel/LogPanel/MarginContainer"]
 layout_mode = 2
-horizontal_alignment = 3
 
 [node name="BattleManager" type="Node" parent="."]
 script = ExtResource("1_kinr6")

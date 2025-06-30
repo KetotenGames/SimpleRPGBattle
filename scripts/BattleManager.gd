@@ -11,3 +11,12 @@ var enemy = {
 	"atk": 15,
 	"def": 3
 }
+
+# ダメージ計算
+func calc_player_attack_damage() -> int:
+	var dmg = player["atk"] - enemy["def"]
+	return max(dmg, 1)
+	
+func calc_enemy_attack_damage() -> int:
+	var dmg = enemy["atk"] - player["def"]
+	return max(dmg, 1)
