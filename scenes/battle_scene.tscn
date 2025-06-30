@@ -1,12 +1,17 @@
-[gd_scene load_steps=2 format=3 uid="uid://7ke01p4fjlou"]
+[gd_scene load_steps=6 format=3 uid="uid://7ke01p4fjlou"]
 
-[ext_resource type="Theme" uid="uid://1p6pc7i311uu" path="res://battle_theme.tres" id="1_idkgt"]
+[ext_resource type="Theme" uid="uid://1p6pc7i311uu" path="res://themes/battle_theme.tres" id="1_idkgt"]
+[ext_resource type="Script" uid="uid://dtfrt5g0kw3pi" path="res://scripts/BattleManager.gd" id="1_kinr6"]
+[ext_resource type="Script" uid="uid://b8uj0cbi0uh4f" path="res://scripts/BattleScene.gd" id="1_rca61"]
+[ext_resource type="FontFile" uid="uid://crajk2p83ax43" path="res://fonts/NOTONOTO-Regular.ttf" id="3_8qdv8"]
+[ext_resource type="Theme" uid="uid://dphw1ua8iu6o0" path="res://themes/panel_visible_space.tres" id="4_pxwbd"]
 
 [node name="BattleScene" type="Control"]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
+script = ExtResource("1_rca61")
 
 [node name="Panel" type="Panel" parent="."]
 custom_minimum_size = Vector2(1152, 648)
@@ -20,8 +25,117 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_idkgt")
 
-[node name="Label" type="Label" parent="Panel"]
+[node name="LabelTeki" type="Label" parent="Panel"]
 layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
+offset_left = 465.0
+offset_top = 105.0
+offset_right = 650.0
+offset_bottom = 189.0
 text = "敵"
+
+[node name="StatusPanel" type="Panel" parent="Panel"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 1
+offset_left = 100.0
+offset_top = 100.0
+offset_right = 140.0
+offset_bottom = 140.0
+theme = ExtResource("1_idkgt")
+
+[node name="VBoxStatus" type="VBoxContainer" parent="Panel/StatusPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="LabelHP" type="Label" parent="Panel/StatusPanel/VBoxStatus"]
+layout_mode = 2
+theme = ExtResource("4_pxwbd")
+horizontal_alignment = 1
+
+[node name="LabelATK" type="Label" parent="Panel/StatusPanel/VBoxStatus"]
+layout_mode = 2
+theme = ExtResource("4_pxwbd")
+horizontal_alignment = 1
+
+[node name="LabelDEF" type="Label" parent="Panel/StatusPanel/VBoxStatus"]
+layout_mode = 2
+theme = ExtResource("4_pxwbd")
+horizontal_alignment = 1
+
+[node name="CommandPanel" type="Panel" parent="Panel"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 0
+offset_left = 100.0
+offset_top = 500.0
+offset_right = 200.0
+offset_bottom = 600.0
+theme = ExtResource("1_idkgt")
+
+[node name="CenterContainer" type="CenterContainer" parent="Panel/CommandPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxCommand" type="VBoxContainer" parent="Panel/CommandPanel/CenterContainer"]
+layout_mode = 2
+
+[node name="HBoxCommand1" type="HBoxContainer" parent="Panel/CommandPanel/CenterContainer/VBoxCommand"]
+layout_mode = 2
+alignment = 1
+
+[node name="CommandCursor1" type="Label" parent="Panel/CommandPanel/CenterContainer/VBoxCommand/HBoxCommand1"]
+layout_mode = 2
+theme = ExtResource("4_pxwbd")
+horizontal_alignment = 1
+
+[node name="CommandName1" type="Label" parent="Panel/CommandPanel/CenterContainer/VBoxCommand/HBoxCommand1"]
+layout_mode = 2
+theme = ExtResource("4_pxwbd")
+text = "こうげき"
+horizontal_alignment = 1
+
+[node name="HBoxCommand2" type="HBoxContainer" parent="Panel/CommandPanel/CenterContainer/VBoxCommand"]
+layout_mode = 2
+
+[node name="CommandCursor2" type="Label" parent="Panel/CommandPanel/CenterContainer/VBoxCommand/HBoxCommand2"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_8qdv8")
+horizontal_alignment = 1
+
+[node name="CommandName2" type="Label" parent="Panel/CommandPanel/CenterContainer/VBoxCommand/HBoxCommand2"]
+layout_mode = 2
+theme = ExtResource("4_pxwbd")
+text = "ぼうぎょ"
+horizontal_alignment = 1
+
+[node name="LogPanel" type="Panel" parent="Panel"]
+custom_minimum_size = Vector2(500, 100)
+layout_mode = 0
+offset_left = 300.0
+offset_top = 500.0
+offset_right = 800.0
+offset_bottom = 600.0
+theme = ExtResource("1_idkgt")
+
+[node name="MarginContainer" type="MarginContainer" parent="Panel/LogPanel"]
+layout_mode = 0
+offset_right = 13.0
+offset_bottom = 27.0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="CommandLogLabel" type="Label" parent="Panel/LogPanel/MarginContainer"]
+layout_mode = 2
+horizontal_alignment = 3
+
+[node name="BattleManager" type="Node" parent="."]
+script = ExtResource("1_kinr6")

@@ -1,0 +1,6 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://dphw1ua8iu6o0"]
+
+[ext_resource type="FontFile" uid="uid://crajk2p83ax43" path="res://fonts/NOTONOTO-Regular.ttf" id="1_w7lqu"]
+
+[resource]
+default_font = ExtResource("1_w7lqu")
