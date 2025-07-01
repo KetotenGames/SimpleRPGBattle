@@ -1,5 +1,7 @@
 extends Node
 
+var player_defending = false  # プレイヤーが防御中かどうか
+
 var player = {
 	"hp": 100,
 	"atk": 20,
@@ -19,4 +21,6 @@ func calc_player_attack_damage() -> int:
 	
 func calc_enemy_attack_damage() -> int:
 	var dmg = enemy["atk"] - player["def"]
+	if player_defending:
+		dmg = int(floor(dmg/2))
 	return max(dmg, 1)

@@ -1,10 +1,13 @@
-[gd_scene load_steps=6 format=3 uid="uid://7ke01p4fjlou"]
+[gd_scene load_steps=9 format=3 uid="uid://7ke01p4fjlou"]
 
 [ext_resource type="Theme" uid="uid://1p6pc7i311uu" path="res://themes/battle_theme.tres" id="1_idkgt"]
 [ext_resource type="Script" uid="uid://dtfrt5g0kw3pi" path="res://scripts/BattleManager.gd" id="1_kinr6"]
 [ext_resource type="Script" uid="uid://b8uj0cbi0uh4f" path="res://scripts/BattleScene.gd" id="1_rca61"]
+[ext_resource type="Texture2D" uid="uid://bumigqd3jroyb" path="res://sprites/Knight.png" id="3_1i8jf"]
 [ext_resource type="FontFile" uid="uid://crajk2p83ax43" path="res://fonts/NOTONOTO-Regular.ttf" id="3_8qdv8"]
+[ext_resource type="AudioStream" uid="uid://shiyowoo5xg2" path="res://sounds/dageki6.mp3" id="3_rum4d"]
 [ext_resource type="Theme" uid="uid://dphw1ua8iu6o0" path="res://themes/panel_visible_space.tres" id="4_pxwbd"]
+[ext_resource type="AudioStream" uid="uid://1ac6wxinrlyt" path="res://sounds/zangeki1.mp3" id="7_svpld"]
 
 [node name="BattleScene" type="Control"]
 layout_mode = 3
@@ -12,37 +15,68 @@ anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("1_rca61")
+player_attack_stream = ExtResource("7_svpld")
+enemy_attack_stream = ExtResource("3_rum4d")
 
 [node name="Panel" type="Panel" parent="."]
-custom_minimum_size = Vector2(1152, 648)
+custom_minimum_size = Vector2(1000, 750)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 1112.0
-offset_bottom = 608.0
+offset_right = 960.0
+offset_bottom = 710.0
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_idkgt")
 
-[node name="CenterContainer" type="CenterContainer" parent="Panel"]
+[node name="EnemyPanel" type="Panel" parent="Panel"]
+custom_minimum_size = Vector2(200, 200)
 layout_mode = 0
-offset_left = 550.0
-offset_right = 590.0
-offset_bottom = 40.0
+offset_left = 450.0
+offset_top = 100.0
+offset_right = 650.0
+offset_bottom = 300.0
+theme = ExtResource("1_idkgt")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel/CenterContainer"]
+[node name="CenterContainer" type="CenterContainer" parent="Panel/EnemyPanel"]
+layout_mode = 0
+offset_right = 200.0
+offset_bottom = 200.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/EnemyPanel/CenterContainer"]
+custom_minimum_size = Vector2(200, 200)
 layout_mode = 2
 alignment = 1
 
-[node name="LabelEnemyHP" type="Label" parent="Panel/CenterContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel/EnemyPanel/CenterContainer/VBoxContainer"]
 layout_mode = 2
-horizontal_alignment = 1
+alignment = 1
 
-[node name="LabelEnemy" type="Label" parent="Panel/CenterContainer/VBoxContainer"]
+[node name="LabelEnemyName" type="Label" parent="Panel/EnemyPanel/CenterContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
-text = "敵"
-horizontal_alignment = 1
+text = "Knight"
+
+[node name="LabelEnemyHP" type="Label" parent="Panel/EnemyPanel/CenterContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+horizontal_alignment = 2
+
+[node name="TextureRect" type="TextureRect" parent="Panel/EnemyPanel/CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+texture = ExtResource("3_1i8jf")
+stretch_mode = 5
+
+[node name="ColorRect" type="ColorRect" parent="Panel/EnemyPanel"]
+visible = false
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 0, 0, 0.501961)
 
 [node name="StatusPanel" type="Panel" parent="Panel"]
 custom_minimum_size = Vector2(100, 100)
@@ -149,3 +183,6 @@ layout_mode = 2
 
 [node name="BattleManager" type="Node" parent="."]
 script = ExtResource("1_kinr6")
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("7_svpld")
