@@ -1,36 +1,37 @@
+class_name BattleScene
 extends Control
 
-@onready var battle_manager = $BattleManager
-@onready var label_hp = $Panel/StatusPanel/VBoxStatus/LabelHP
-@onready var label_atk = $Panel/StatusPanel/VBoxStatus/LabelATK
-@onready var label_def = $Panel/StatusPanel/VBoxStatus/LabelDEF
+@onready var battle_manager: BattleManager = $BattleManager
+@onready var label_hp: Label = $Panel/StatusPanel/VBoxStatus/LabelHP
+@onready var label_atk: Label = $Panel/StatusPanel/VBoxStatus/LabelATK
+@onready var label_def: Label = $Panel/StatusPanel/VBoxStatus/LabelDEF
 
-var commands = ["こうげき", "ぼうぎょ"]
-var selected_index = 0
+var commands:Array[String] = ["こうげき", "ぼうぎょ"]
+var selected_index:int = 0
 
-@onready var command_cursor_lables = [
+@onready var command_cursor_lables: Array[Label] = [
 	$Panel/CommandPanel/CenterContainer/VBoxCommand/HBoxCommand1/CommandCursor1,
 	$Panel/CommandPanel/CenterContainer/VBoxCommand/HBoxCommand2/CommandCursor2
 ]
-@onready var command_log_label = $Panel/LogPanel/MarginContainer/CommandLogLabel
-@onready var label_enemy_hp = $Panel/EnemyPanel/CenterContainer/VBoxContainer/HBoxContainer/LabelEnemyHP
+@onready var command_log_label: Label = $Panel/LogPanel/MarginContainer/CommandLogLabel
+@onready var label_enemy_hp: Label = $Panel/EnemyPanel/CenterContainer/VBoxContainer/HBoxContainer/LabelEnemyHP
 
-var battle_ended = false
+var battle_ended: bool = false
 
-@onready var enemy_flash_rect = $Panel/EnemyPanel/ColorRect
-@onready var se_player = $AudioStreamPlayer2D
-@export var player_attack_stream: AudioStream
-@export var enemy_attack_stream: AudioStream
+@onready var enemy_flash_rect: ColorRect = $Panel/EnemyPanel/ColorRect
+@onready var se_player: AudioStreamPlayer2D = $AudioStreamPlayer2D
+@export var player_attack_stream: AudioStreamMP3
+@export var enemy_attack_stream: AudioStreamMP3
 
-var shake_intensity = 12
-var shake_time = 0.25
+var shake_intensity:int = 12
+var shake_time: float = 0.25
 
-var typing_speed = 0.04
-var input_locked = false
-var accept_waiting_for_release = false
-var is_command_running = false
+var typing_speed: float = 0.04
+var input_locked: bool = false
+var accept_waiting_for_release: bool = false
+var is_command_running: bool = false
 
-func _ready():
+func _ready() -> void:
 	_update_player_status()
 	_update_enemy_status()
 	_update_cursor()
@@ -39,7 +40,7 @@ func _ready():
 	label_atk.text = "攻撃: %d" % battle_manager.player["atk"]
 	label_def.text = "防御: %d" % battle_manager.player["def"]
 	
-func _input(event):
+func _input(event) -> void:
 	if input_locked or accept_waiting_for_release:
 		return
 
@@ -56,7 +57,7 @@ func _input(event):
 		accept_waiting_for_release = true
 		_on_command_selected()
 
-func _on_typing_message_finished():
+func _on_typing_message_finished() -> void:
 	# タイピング終了時に呼び出す（show_typing_message関数の最後に呼ぶ）
 	await _wait_for_key_release("ui_accept")
 	# さらに「押下」も完全に終わってから受付解放
@@ -69,11 +70,11 @@ func _wait_for_key_release(action_name: String) -> void:
 	while Input.is_action_pressed(action_name):
 		await get_tree().process_frame
 
-func _update_cursor():
+func _update_cursor() -> void:
 	for i in command_cursor_lables.size():
 		command_cursor_lables[i].text = "▶" if i == selected_index else "　"
 		
-func _on_command_selected():
+func _on_command_selected() -> void:
 	if is_command_running:
 		return
 	is_command_running = true
@@ -82,8 +83,8 @@ func _on_command_selected():
 	if cmd == "こうげき":
 		battle_manager.player_defending = false
 		var damage = battle_manager.calc_player_attack_damage()
-		battle_manager.enemy["hp"] -= damage
-		battle_manager.enemy["hp"] = max(battle_manager.enemy["hp"], 0)
+		battle_manager.enemy.hp -= damage
+		battle_manager.enemy.hp = max(battle_manager.enemy.hp, 0)
 		_update_enemy_status()
 		await show_typing_message(command_log_label, "敵に%dのダメージ！" % damage)
 		await _on_typing_message_finished()
@@ -109,13 +110,13 @@ func _on_command_selected():
 
 		
 # 敵ステータス更新
-func _update_enemy_status():
-	label_enemy_hp.text = "HP: %d" % battle_manager.enemy["hp"]
+func _update_enemy_status() -> void:
+	label_enemy_hp.text = "HP: %d" % battle_manager.enemy.hp
 	
-func _enemy_turn():
+func _enemy_turn() -> void:
 	var damage = battle_manager.calc_enemy_attack_damage()
-	battle_manager.player["hp"] -= damage
-	battle_manager.player["hp"] = max(battle_manager.player["hp"], 0)
+	battle_manager.player.hp -= damage
+	battle_manager.player.hp = max(battle_manager.player.hp, 0)
 	_update_player_status()
 	await show_typing_message(command_log_label, "敵のこうげき！\nプレイヤーは%dのダメージを受けた！" % damage)
 	await _on_typing_message_finished()
@@ -124,31 +125,31 @@ func _enemy_turn():
 	battle_manager.player_defending = false # 1ターンで防御解除
 	await _check_battle_result()
 	
-func _update_player_status():
-	label_hp.text = "HP: %d" % battle_manager.player["hp"]
+func _update_player_status() -> void:
+	label_hp.text = "HP: %d" % battle_manager.player.hp
 	
-func _check_battle_result():
-	if battle_manager.enemy["hp"] <= 0:
+func _check_battle_result() -> bool:
+	if battle_manager.enemy.hp <= 0:
 		await show_typing_message(command_log_label, "敵を倒した!\n勝利！")
 		await _on_typing_message_finished()
 		_end_battle()
 		return true
-	elif battle_manager.player["hp"] <= 0:
+	elif battle_manager.player.hp <= 0:
 		await show_typing_message(command_log_label, "力尽きた...\nゲームオーバー")
 		await _on_typing_message_finished()
 		_end_battle()
 		return true
 	return false
 	
-func _end_battle():
+func _end_battle() -> void:
 	battle_ended = true
 
-func player_damage_effect():
+func player_damage_effect() -> void:
 	se_player.stream = enemy_attack_stream
 	se_player.play()
 	screen_shake()
 	
-func screen_shake():
+func screen_shake() -> void:
 	var tween = create_tween()
 	var origin = position	# 初期位置
 	for i in 4:
@@ -160,7 +161,7 @@ func screen_shake():
 	tween.tween_property(self, "position", origin, shake_time / 5)
 	
 
-func enemy_damage_effect():
+func enemy_damage_effect() -> void:
 	se_player.stream = player_attack_stream
 	se_player.play()	# 効果音再生
 	enemy_flash_rect.visible = true
@@ -169,10 +170,10 @@ func enemy_damage_effect():
 	tween.tween_property(enemy_flash_rect, "modulate:a", 0.0, 0.3)
 	tween.tween_callback(Callable(self, "_on_flash_finished"))
 	
-func _on_flash_finished():
+func _on_flash_finished() -> void:
 	enemy_flash_rect.visible = false
 
-func show_typing_message(target_label: Label, message: String):
+func show_typing_message(target_label: Label, message: String) -> void:
 	input_locked = true
 	target_label.text = ""
 	for ch in message:
