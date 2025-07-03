@@ -1,7 +1,9 @@
+# BattleScene.gd
 class_name BattleScene
 extends Control
 
 @onready var battle_manager: BattleManager = $BattleManager
+@onready var result_label: Label = $Panel/ResultLabel
 @onready var label_hp: Label = $Panel/StatusPanel/VBoxStatus/LabelHP
 @onready var label_atk: Label = $Panel/StatusPanel/VBoxStatus/LabelATK
 @onready var label_def: Label = $Panel/StatusPanel/VBoxStatus/LabelDEF
@@ -133,11 +135,15 @@ func _check_battle_result() -> bool:
 		await show_typing_message(command_log_label, "敵を倒した!\n勝利！")
 		await _on_typing_message_finished()
 		_end_battle()
+		result_label.text = "VICTORY"
+		result_label.visible = true
 		return true
 	elif battle_manager.player.hp <= 0:
 		await show_typing_message(command_log_label, "力尽きた...\nゲームオーバー")
 		await _on_typing_message_finished()
 		_end_battle()
+		result_label.text = "GAME OVER"
+		result_label.visible = true
 		return true
 	return false
 	

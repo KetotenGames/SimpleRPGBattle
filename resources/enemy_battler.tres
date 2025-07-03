@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="Battler" load_steps=2 format=3 uid="uid://c45k6yl1bmx5o"]
+
+[ext_resource type="Script" uid="uid://cqo8d5ncvxu32" path="res://scripts/Battler.gd" id="1_hcw7i"]
+
+[resource]
+script = ExtResource("1_hcw7i")
+name = "敵騎士"
+max_hp = 40
+atk = 15
+def = 3
+metadata/_custom_type_script = "uid://cqo8d5ncvxu32"

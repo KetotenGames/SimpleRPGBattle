@@ -1,14 +1,20 @@
+# BattleManager.gd
 class_name BattleManager
 extends Node
 
 var player_defending = false  # プレイヤーが防御中かどうか
 
+@export var player_data: Battler
+@export var enemy_data: Battler
+
 var player: Battler
 var enemy: Battler
 
 func _ready() -> void:
-	player = Battler.new("勇者", 100, 20, 5)
-	enemy = Battler.new("敵騎士", 80, 15, 3)
+	player = player_data.duplicate()
+	enemy = enemy_data.duplicate()
+	player.reset_hp()
+	enemy.reset_hp()
 
 # ダメージ計算
 func calc_player_attack_damage() -> int:

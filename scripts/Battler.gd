@@ -1,20 +1,22 @@
+# Battler.gd
 class_name Battler
+extends Resource
 
-var name: String
-var max_hp: int
+@export var name: String
+@export var max_hp: int
+@export var atk: int
+@export var def: int
+
 var hp: int
-var atk: int
-var def: int
 
-func _init(name: String = "", max_hp:int = 0, atk:int = 0, def:int = 0) -> void:
-	self.name = name
-	self.max_hp = max_hp
+func _init() -> void:
 	self.hp = max_hp
-	self.atk = atk
-	self.def = def
 	
 func take_damage(amount: int) -> void:
 	self.hp = max(self.hp - amount, 0)
 	
 func is_alive() -> bool:
 	return self.hp > 0
+	
+func reset_hp() -> void:
+	hp = max_hp
