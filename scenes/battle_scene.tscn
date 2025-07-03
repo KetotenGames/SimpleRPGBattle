@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://7ke01p4fjlou"]
+[gd_scene load_steps=13 format=3 uid="uid://7ke01p4fjlou"]
 
 [ext_resource type="Theme" uid="uid://1p6pc7i311uu" path="res://themes/battle_theme.tres" id="1_idkgt"]
 [ext_resource type="Script" uid="uid://dtfrt5g0kw3pi" path="res://scripts/BattleManager.gd" id="1_kinr6"]
@@ -10,6 +10,8 @@
 [ext_resource type="AudioStream" uid="uid://1ac6wxinrlyt" path="res://sounds/zangeki1.mp3" id="7_svpld"]
 [ext_resource type="Resource" uid="uid://ckj3i8n7thbli" path="res://resources/player_battler.tres" id="9_0gp0h"]
 [ext_resource type="Resource" uid="uid://c45k6yl1bmx5o" path="res://resources/enemy_battler.tres" id="10_g72on"]
+[ext_resource type="Script" uid="uid://de4d2rj7gf3er" path="res://scripts/BattleLogPresenter.gd" id="11_g72on"]
+[ext_resource type="Script" uid="uid://bco0lphqww2qi" path="res://scripts/BattleViewModel.gd" id="12_tttxe"]
 
 [node name="BattleScene" type="Control"]
 layout_mode = 3
@@ -197,6 +199,13 @@ layout_mode = 2
 script = ExtResource("1_kinr6")
 player_data = ExtResource("9_0gp0h")
 enemy_data = ExtResource("10_g72on")
+
+[node name="BattleLogPresenter" type="Node" parent="." node_paths=PackedStringArray("log_label")]
+script = ExtResource("11_g72on")
+log_label = NodePath("../Panel/LogPanel/MarginContainer/CommandLogLabel")
+
+[node name="BattleViewModel" type="Node" parent="."]
+script = ExtResource("12_tttxe")
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("7_svpld")

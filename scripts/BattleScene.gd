@@ -3,22 +3,20 @@ class_name BattleScene
 extends Control
 
 @onready var battle_manager: BattleManager = $BattleManager
+@onready var log_presenter: BattleLogPresenter = $BattleLogPresenter
+@onready var view_model: BattleViewModel = $BattleViewModel
+
 @onready var result_label: Label = $Panel/ResultLabel
 @onready var label_hp: Label = $Panel/StatusPanel/VBoxStatus/LabelHP
 @onready var label_atk: Label = $Panel/StatusPanel/VBoxStatus/LabelATK
 @onready var label_def: Label = $Panel/StatusPanel/VBoxStatus/LabelDEF
 
-var commands:Array[String] = ["こうげき", "ぼうぎょ"]
-var selected_index:int = 0
-
-@onready var command_cursor_lables: Array[Label] = [
+@onready var command_cursor_labels: Array[Label] = [
 	$Panel/CommandPanel/CenterContainer/VBoxCommand/HBoxCommand1/CommandCursor1,
 	$Panel/CommandPanel/CenterContainer/VBoxCommand/HBoxCommand2/CommandCursor2
 ]
 @onready var command_log_label: Label = $Panel/LogPanel/MarginContainer/CommandLogLabel
 @onready var label_enemy_hp: Label = $Panel/EnemyPanel/CenterContainer/VBoxContainer/HBoxContainer/LabelEnemyHP
-
-var battle_ended: bool = false
 
 @onready var enemy_flash_rect: ColorRect = $Panel/EnemyPanel/ColorRect
 @onready var se_player: AudioStreamPlayer2D = $AudioStreamPlayer2D
@@ -30,8 +28,6 @@ var shake_time: float = 0.25
 
 var typing_speed: float = 0.04
 var input_locked: bool = false
-var accept_waiting_for_release: bool = false
-var is_command_running: bool = false
 
 func _ready() -> void:
 	_update_player_status()
@@ -43,58 +39,42 @@ func _ready() -> void:
 	label_def.text = "防御: %d" % battle_manager.player["def"]
 	
 func _input(event) -> void:
-	if input_locked or accept_waiting_for_release:
+	if input_locked or view_model.is_command_running:
 		return
 
-	if battle_ended:
+	if view_model.battle_ended:
 		return
 
 	if event.is_action_released("ui_down"):
-		selected_index = min(selected_index + 1, commands.size() - 1)
+		view_model.selected_index = min(view_model.selected_index + 1, view_model.commands.size() - 1)
 		_update_cursor()
 	elif event.is_action_released("ui_up"):
-		selected_index = max(selected_index - 1, 0)
+		view_model.selected_index = max(view_model.selected_index - 1, 0)
 		_update_cursor()
 	elif event.is_action_released("ui_accept"):
-		accept_waiting_for_release = true
 		_on_command_selected()
 
-func _on_typing_message_finished() -> void:
-	# タイピング終了時に呼び出す（show_typing_message関数の最後に呼ぶ）
-	await _wait_for_key_release("ui_accept")
-	# さらに「押下」も完全に終わってから受付解放
-	await get_tree().process_frame
-	accept_waiting_for_release = false
-
-# キーが離されるまで待つユーティリティ
-func _wait_for_key_release(action_name: String) -> void:
-	# キーが一度「完全に離される」までループ
-	while Input.is_action_pressed(action_name):
-		await get_tree().process_frame
-
 func _update_cursor() -> void:
-	for i in command_cursor_lables.size():
-		command_cursor_lables[i].text = "▶" if i == selected_index else "　"
+	for i in command_cursor_labels.size():
+		command_cursor_labels[i].text = "▶" if i == view_model.selected_index else "　"
 		
 func _on_command_selected() -> void:
-	if is_command_running:
+	if view_model.is_command_running:
 		return
-	is_command_running = true
+	view_model.is_command_running = true
 	
-	var cmd = commands[selected_index]
+	var cmd = view_model.commands[view_model.selected_index]
 	if cmd == "こうげき":
 		battle_manager.player_defending = false
 		var damage = battle_manager.calc_player_attack_damage()
 		battle_manager.enemy.hp -= damage
 		battle_manager.enemy.hp = max(battle_manager.enemy.hp, 0)
 		_update_enemy_status()
-		await show_typing_message(command_log_label, "敵に%dのダメージ！" % damage)
-		await _on_typing_message_finished()
-		
+		await log_presenter.show_typing_message("敵に%dのダメージ！" % damage)
 		enemy_damage_effect()
 		
 		if await _check_battle_result():
-			is_command_running = false
+			view_model.is_command_running = false
 			return
 		
 		await get_tree().create_timer(0.6).timeout
@@ -102,53 +82,66 @@ func _on_command_selected() -> void:
 		
 	elif cmd == "ぼうぎょ":
 		battle_manager.player_defending = true
-		await show_typing_message(command_log_label, "防御の態勢をとった！")
-		await _on_typing_message_finished()
-		
+		await log_presenter.show_typing_message("防御の態勢をとった！")
 		await get_tree().create_timer(0.6).timeout
 		await _enemy_turn()
 	
-	is_command_running = false
+	view_model.is_command_running = false
 
 		
 # 敵ステータス更新
 func _update_enemy_status() -> void:
-	label_enemy_hp.text = "HP: %d" % battle_manager.enemy.hp
+	view_model.update_enemy_status(
+		battle_manager.enemy.hp,
+		battle_manager.enemy.atk,
+		battle_manager.enemy.def
+	)
+	label_enemy_hp.text = "HP: %d" % view_model.enemy_hp
 	
 func _enemy_turn() -> void:
 	var damage = battle_manager.calc_enemy_attack_damage()
 	battle_manager.player.hp -= damage
 	battle_manager.player.hp = max(battle_manager.player.hp, 0)
 	_update_player_status()
-	await show_typing_message(command_log_label, "敵のこうげき！\nプレイヤーは%dのダメージを受けた！" % damage)
-	await _on_typing_message_finished()
+	await log_presenter.show_typing_message("敵のこうげき！\nプレイヤーは%dのダメージを受けた！" % damage)
 	player_damage_effect()
 	
 	battle_manager.player_defending = false # 1ターンで防御解除
 	await _check_battle_result()
+	print("_enemy_turn end")
 	
 func _update_player_status() -> void:
-	label_hp.text = "HP: %d" % battle_manager.player.hp
+	view_model.update_player_status(
+		battle_manager.player.hp,
+		battle_manager.player.atk,
+		battle_manager.player.def,
+	)
+	label_hp.text = "HP: %d" % view_model.player_hp
+	label_atk.text = "攻撃: %d" % view_model.player_atk
+	label_def.text = "防御: %d" % view_model.player_def
 	
 func _check_battle_result() -> bool:
 	if battle_manager.enemy.hp <= 0:
-		await show_typing_message(command_log_label, "敵を倒した!\n勝利！")
-		await _on_typing_message_finished()
+		print("勝利分岐へ")
+		await log_presenter.show_typing_message("敵を倒した!\n勝利！")
 		_end_battle()
-		result_label.text = "VICTORY"
+		view_model.set_result_text("VICTORY")
+		result_label.text = view_model.result_text
 		result_label.visible = true
 		return true
 	elif battle_manager.player.hp <= 0:
-		await show_typing_message(command_log_label, "力尽きた...\nゲームオーバー")
-		await _on_typing_message_finished()
+		print("敗北分岐へ")
+		await log_presenter.show_typing_message("力尽きた...\nゲームオーバー")
 		_end_battle()
-		result_label.text = "GAME OVER"
+		view_model.set_result_text("GAME OVER")
+		result_label.text = view_model.result_text
 		result_label.visible = true
 		return true
+	print("バトル継続")
 	return false
 	
 func _end_battle() -> void:
-	battle_ended = true
+	view_model.battle_ended = true
 
 func player_damage_effect() -> void:
 	se_player.stream = enemy_attack_stream
@@ -168,6 +161,7 @@ func screen_shake() -> void:
 	
 
 func enemy_damage_effect() -> void:
+	print("enemy_damage_effect called")  # 追加
 	se_player.stream = player_attack_stream
 	se_player.play()	# 効果音再生
 	enemy_flash_rect.visible = true
@@ -178,11 +172,3 @@ func enemy_damage_effect() -> void:
 	
 func _on_flash_finished() -> void:
 	enemy_flash_rect.visible = false
-
-func show_typing_message(target_label: Label, message: String) -> void:
-	input_locked = true
-	target_label.text = ""
-	for ch in message:
-		target_label.text += ch
-		await get_tree().create_timer(typing_speed).timeout
-	input_locked = false
